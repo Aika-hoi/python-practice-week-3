@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Мой Менеджер Задач</title>
+    <style>
+        body { font-family: 'Arial', sans-serif; background-color: #eef2f3; display: flex; justify-content: center; padding-top: 50px; }
+        .app-container { background: white; padding: 30px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); width: 100%; max-width: 400px; }
+        h1 { text-align: center; color: #333; font-size: 24px; }
+        .input-box { display: flex; gap: 10px; margin-bottom: 20px; }
+        input { flex: 1; padding: 12px; border: 1px solid #ddd; border-radius: 8px; outline: none; }
+        button { padding: 12px 20px; background-color: #28a745; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; }
+        button:hover { background-color: #218838; }
+        ul { list-style: none; padding: 0; }
+        li { background: #f9f9f9; margin-bottom: 10px; padding: 12px; border-radius: 8px; border-left: 5px solid #28a745; display: flex; justify-content: space-between; align-items: center; }
+    </style>
+</head>
+<body>
+
+<div class="app-container">
+    <h1>📝 Задачи</h1>
+    <div class="input-box">
+        <input type="text" id="taskInput" placeholder="Что нужно сделать?">
+        <button onclick="addTask()">+</button>
+    </div>
+    <ul id="taskList"></ul>
+</div>
+
+<script>
+    const API_URL = "http://localhost:8000/tasks";
+
+    // Получение задач (GET)
+    async function fetchTasks() {
+        try {
+            const response = await fetch(API_URL);
+            const tasks = await response.json();
+            const list = document.getElementById('taskList');
+            list.innerHTML = '';
+            tasks.forEach(task => {
+                const li = document.createElement('li');
+                li.innerHTML = `<span>${task.title}</span>`;
+                list.appendChild(li);
+            });
+        } catch (error) {
+            console.error("Ошибка при получении данных:", error);
+        }
+    }
+
+    // Создание задачи (POST)
+    async function addTask() {
+        const input = document.getElementById('taskInput');
+        if (!input.value.trim()) return;
+
+        try {
+            const response = await fetch(API_URL, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ title: input.value, description: "" })
+            });
+
+            if (response.ok) {
+                input.value = '';
+                fetchTasks(); // Обновляем список
+            }
+        } catch (error) {
+            console.error("Ошибка при отправке:", error);
+        }
+    }
+
+    // Загружаем список при открытии страницы
+    document.addEventListener("DOMContentLoaded", fetchTasks);
+</script>
+
+</body>
+</html>
