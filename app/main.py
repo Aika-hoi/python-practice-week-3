@@ -6,7 +6,6 @@ from . import crud, models, schemas, database
 
 app = FastAPI()
 
-# Разрешаем браузеру общаться с сервером
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -31,3 +30,4 @@ async def read_tasks(db: AsyncSession = Depends(get_db)):
 @app.post("/tasks", response_model=schemas.TaskResponse)
 async def create_task(task: schemas.TaskCreate, db: AsyncSession = Depends(get_db)):
     return await crud.create_task(db=db, task=task)
+
